@@ -7,19 +7,23 @@ This guide explains how to deploy the Developer Avatar application to a Linux VM
 -   A Linux VM (Ubuntu 20.04/22.04 recommended) with SSH access.
 -   Access to the internet from the VM.
 
-## Step 1: Transfer Code to VM
+## Step 1: Update Code on VM
 
-You can use `scp` (Secure Copy) to transfer the project files from your local machine to the VM.
+Since you already have the code on the VM, you just need to update it with the latest changes (including the new scripts and config).
 
-Run this command **from your local machine (Windows PowerShell/WSL)**:
-
+**Option A: If you use Git**
+On the VM:
 ```bash
-# Replace <user> and <vm-ip> with your VM details
-# Make sure you are in the directory containing 'developer_avatar'
-scp -r developer_avatar <user>@<vm-ip>:~/developer_avatar
+cd developer_avatar
+git pull origin main
 ```
 
-Alternatively, if you are using git, you can just `git clone` your repository on the VM.
+**Option B: Re-upload using SCP**
+From your local machine:
+```bash
+scp -i ".\THTN-VM-9_key.pem" -r developer_avatar user-vm1901@4.240.105.241:~/
+```
+
 
 ## Step 2: Run Setup Script
 
@@ -45,18 +49,20 @@ nano backend/.env
 # Paste your Azure keys here, save and exit (Ctrl+O, Enter, Ctrl+X)
 ```
 
-## Step 3: Start the Application
+## Step 3: Restart the Application
 
-We use `pm2` to keep the application running in the background.
+Since the app is already running, we need to restart it to apply changes.
 
+```bash
+pm2 restart backend
+pm2 restart frontend
+```
+
+Or if you want to use the start script (it handles starting/restarting):
 ```bash
 chmod +x start_app.sh
 ./start_app.sh
 ```
-
-This will start:
--   Backend on port `8000`
--   Frontend on port `3000`
 
 ## Step 4: Access the UI
 
@@ -71,7 +77,7 @@ You can "forward" the port from the VM to your local machine using SSH.
 Run this command on **your local machine**:
 
 ```bash
-ssh -L 3000:localhost:3000 <user>@<vm-ip>
+ssh -i ".\THTN-VM-9_key.pem" -L 3000:localhost:3000 -L 8000:localhost:8000 user-vm1901@4.240.105.241
 ```
 Leave this terminal window open. Now go to `http://localhost:3000` on your local machine.
 

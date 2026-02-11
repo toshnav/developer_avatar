@@ -29,13 +29,18 @@ def get_developer_activity(email: str, date: str):
     
     # 1. Search for issues updated by the user on that date
     jql = f"worklogAuthor = '{email}' AND worklogDate = '{date}'"
-    search_url = f"{jira_url}/rest/api/3/search"
+    search_url = f"{jira_url}/rest/api/3/search/jql"
     
-    response = requests.get(
+    payload = {
+        "jql": jql,
+        "fields": ["summary", "status", "worklog"]
+    }
+
+    response = requests.post(
         search_url,
         headers=get_jira_headers(),
         auth=get_jira_auth(),
-        params={"jql": jql, "fields": "summary,status,worklog"}
+        json=payload
     )
     
     if response.status_code != 200:

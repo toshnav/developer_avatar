@@ -89,9 +89,11 @@ def summarize_activity(jira_data: dict) -> ActivitySummary:
         )
     except Exception as e:
         error_msg = str(e)
-        if "403" in error_msg or "credits" in error_msg.lower():
-             return _mock_summary(jira_data, "Grok API Error: Insufficient credits. Please add billing details at console.x.ai.")
-        return _mock_summary(jira_data, f"LLM Error: {error_msg}")
+        if "403" in error_msg:
+             return _mock_summary(jira_data, f"Access Denied (403) from {llm_provider}. Check firewall/network settings.")
+        if "credits" in error_msg.lower():
+             return _mock_summary(jira_data, "Insufficient credits. Please check your provider's billing.")
+        return _mock_summary(jira_data, f"LLM Error ({llm_provider}): {error_msg}")
 
 def _mock_summary(jira_data: dict, message: str) -> ActivitySummary:
     return ActivitySummary(
