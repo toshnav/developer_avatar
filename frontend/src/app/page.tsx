@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { fetchActivitySummary } from '@/lib/api';
 import { ActivitySummary } from '@/lib/types';
+import ReactMarkdown from 'react-markdown';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -70,8 +71,8 @@ export default function Home() {
             onClick={handleFetch}
             disabled={loading}
             className={`mt-8 w-full py-4 rounded-xl font-bold text-lg tracking-wide shadow-lg transform transition-all hover:scale-[1.02] ${loading
-                ? 'bg-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white'
+              ? 'bg-gray-600 cursor-not-allowed'
+              : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white'
               }`}
           >
             {loading ? 'Analyzing Worklogs...' : 'Generate Status Report'}
@@ -100,6 +101,12 @@ export default function Home() {
               </div>
             </div>
 
+            import ReactMarkdown from 'react-markdown';
+
+            // ... (existing imports)
+
+            // ... (inside component)
+
             {/* AI Summary */}
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-teal-900/30 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -108,8 +115,8 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-4 text-teal-300 flex items-center gap-2">
                 <span>✨</span> Agent Summary
               </h3>
-              <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed whitespace-pre-line">
-                {summary.summary}
+              <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed">
+                <ReactMarkdown>{summary.summary}</ReactMarkdown>
               </div>
             </div>
           </div>
