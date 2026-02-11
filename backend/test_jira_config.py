@@ -34,12 +34,13 @@ try:
         print(response.text)
         exit(1)
 
-    print("\n2. Searching for recent issues (POST /search/jql)...")
+    print("\n4. Testing Worklog Query...")
     search_url = f"{jira_url}/rest/api/3/search/jql"
-    jql = "created >= -30d order by created DESC"
+    # Exact query used in jira_client.py
+    jql = "worklogAuthor = 'toshnavkhatke20@gmail.com' AND worklogDate = '2026-02-12'"
     payload = {
         "jql": jql,
-        "maxResults": 1,
+        "maxResults": 5,
         "fields": ["summary", "status", "worklog"]
     }
     response = requests.post(
@@ -48,16 +49,25 @@ try:
         auth=auth,
         json=payload
     )
-    
+
     if response.status_code == 200:
         data = response.json()
         total = data.get("total", 0)
-        print(f"Success! Found {total} total issues.")
-        if total > 0:
-            print(f"Latest issue: {data['issues'][0]['key']}")
+        print(f"Found {total} issues in SAM1.")
+        
+        for issue in data.get("issues", []):
+            print(f"\nKey: {issue['key']}")
+            print(f"Summary: {issue['fields']['summary']}")
+            worklogs = issue['fields'].get('worklog', {}).get('worklogs', [])
+            print(f"Worklogs count: {len(worklogs)}")
+            for w in worklogs:
+                print(f" - Author: {w.get('author', {}).get('emailAddress')}")
+                print(f" - Time: {w.get('timeSpent')}")
+                if "comment" in w:
+                    print(f" - Comment Type: {type(w['comment'])}")
+                    print(f" - Comment Content: {w['comment']}")
     else:
-        print(f"Failed to search: {response.status_code}")
-        print(response.text)
+        print(f"Failed: {response.text}")
 
 except Exception as e:
     print(f"Error: {e}")

@@ -11,12 +11,18 @@ This guide explains how to deploy the Developer Avatar application to a Linux VM
 
 Since you already have the code on the VM, you just need to update it with the latest changes (including the new scripts and config).
 
-**Option A: If you use Git**
+**Option A: If you use Git (Recommended)**
 On the VM:
 ```bash
 cd developer_avatar
 git pull origin main
 ```
+
+**IMPORTANT:** You must update the `.env` file with your new Jira credentials!
+```bash
+nano backend/.env
+```
+(Paste the new JIRA_URL, JIRA_USERNAME, and JIRA_API_TOKEN, then Ctrl+O, Enter, Ctrl+X to save)
 
 **Option B: Re-upload using SCP**
 From your local machine:

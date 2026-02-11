@@ -15,6 +15,19 @@ def get_jira_auth():
     token = os.getenv("JIRA_API_TOKEN")
     return HTTPBasicAuth(email, token)
 
+def _extract_text_from_adf(node):
+    """
+    Recursively extracts text from an Atlassian Document Format (ADF) node.
+    """
+    if isinstance(node, dict):
+        if "text" in node:
+            return node["text"]
+        if "content" in node:
+            return " ".join([_extract_text_from_adf(child) for child in node["content"]])
+    elif isinstance(node, list):
+         return " ".join([_extract_text_from_adf(child) for child in node])
+    return ""
+
 def get_developer_activity(email: str, date: str):
     """
     Fetches activity for a developer on a specific date.
@@ -23,9 +36,6 @@ def get_developer_activity(email: str, date: str):
     jira_url = os.getenv("JIRA_URL")
     if not jira_url:
         return {"error": "JIRA_URL not set"}
-
-    # This is a simplified example. In a real scenario, we might need to search for user accountId first.
-    # For now, let's assume we can search issues assigned to the user or worklogs by the user.
     
     # 1. Search for issues updated by the user on that date
     jql = f"worklogAuthor = '{email}' AND worklogDate = '{date}'"
@@ -61,8 +71,6 @@ def get_developer_activity(email: str, date: str):
         
         # Filter worklogs for the specific user and date
         worklogs = issue["fields"].get("worklog", {}).get("worklogs", [])
-        # If worklogs are not fully expanded, we might need to fetch them separately.
-        # For MVP, assuming they are present or we iterate.
         
         time_spent_seconds = 0
         comments = []
@@ -72,8 +80,13 @@ def get_developer_activity(email: str, date: str):
              if date in worklog.get("started", "") and worklog.get("author", {}).get("emailAddress") == email:
                  time_spent_seconds += worklog.get("timeSpentSeconds", 0)
                  if "comment" in worklog and worklog["comment"]:
-                     # Extract comment text (simplified)
-                     comments.append(worklog["comment"])
+                     # Extract text from ADF or string
+                     if isinstance(worklog["comment"], dict):
+                         text = _extract_text_from_adf(worklog["comment"])
+                         if text.strip():
+                            comments.append(text)
+                     elif isinstance(worklog["comment"], str):
+                         comments.append(worklog["comment"])
 
         if time_spent_seconds > 0:
             activity_data["issues"].append({

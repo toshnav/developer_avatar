@@ -56,20 +56,25 @@ def summarize_activity(jira_data: dict) -> ActivitySummary:
     for issue in jira_data.get("issues", []):
         issues_text += f"- {issue['key']}: {issue['summary']} ({issue['status']})\n"
         issues_text += f"  Time: {issue['time_spent_seconds']/3600:.2f} hours\n"
+        if issue.get("comments"):
+            issues_text += f"  Comments: {', '.join(issue['comments'])}\n"
     
     total_hours = jira_data.get("total_time_seconds", 0) / 3600
     
     prompt = f"""
     You are an AI assistant representing a software developer.
-    Based on the following Jira activity for today, write a concise daily standup summary.
+    Based on the following Jira activity for today, write a daily standup summary.
     
     Total Hours: {total_hours:.2f}
     
     Activity:
     {issues_text}
     
-    Format the summary as a first-person narrative, professional but conversational.
-    Also determine the overall status (e.g., On Track, Blocked, Completed).
+    Please structure your response as follows:
+    1.  **Work Log Breakdown**: List each issue/feature we worked on. For each, explicitly state the **Time Spent** and summarize the **Comments/Work Details**.
+    2.  **Overall Summary**: A concise, first-person narrative paragraph summarizing the day's main achievements and progress (e.g., "Today I focused on...").
+    
+    Determine the overall status (e.g., On Track, Blocked, Completed) based on the context.
     """
     
     try:
