@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+requests
+langchain
+langchain-openai
+pydantic
+python-multipart
+# Add any other specific langchain packages as needed, e.g. langchain-community
+langchain-community
