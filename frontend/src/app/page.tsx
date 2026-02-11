@@ -6,7 +6,14 @@ import { ActivitySummary } from '@/lib/types';
 
 export default function Home() {
   const [email, setEmail] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  // Use local date instead of UTC to avoid timezone issues
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [summary, setSummary] = useState<ActivitySummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
