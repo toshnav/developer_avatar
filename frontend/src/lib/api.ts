@@ -1,14 +1,14 @@
-import { DailyActivityRequest, ActivitySummary } from './types';
+import { ActivitySummary } from './types';
 
 const API_BASE_URL = 'http://localhost:8000';
 
-export async function fetchActivitySummary(email: string, date: string): Promise<ActivitySummary> {
+export async function fetchActivitySummary(email: string, date: string, llmProvider: string = 'azure'): Promise<ActivitySummary> {
     const response = await fetch(`${API_BASE_URL}/activity/summary`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ developer_email: email, date }),
+        body: JSON.stringify({ developer_email: email, date, llm_provider: llmProvider }),
     });
 
     if (!response.ok) {
